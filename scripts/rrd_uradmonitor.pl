@@ -23,7 +23,7 @@
 # THE SOFTWARE.
 #
 # Name          : rrd_uradmonitor.pl 
-# Version       : 0.6.0
+# Version       : 0.6.1
 # Date          : 2015/07/16
 #
 # Description   : A Perl script that fetches data from an uRADMonitor
@@ -197,7 +197,7 @@ sub create_radiation_graph {
         "GPRINT:usvh:AVERAGE:Avg\\: %5.2lf",
         "GPRINT:usvh:MIN:Min\\: %5.2lf",
         "GPRINT:usvh:LAST:Current\\: %5.2lf uSv/h",
-        "LINE:usvhmax#006666:Maximum values\\n";
+        "AREA:usvhmax#80808088:Maximum values\\n";
 
         if ($ERROR = RRDs::error) {
                 print "$0: unable to create $_[0] graph $ERROR\n";
