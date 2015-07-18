@@ -14,7 +14,7 @@ The pressure graph is generated only if the device has a pressure sensor. The de
  
 ## Installation
 
-Put ```rrd_uradmonitor.pl``` script into ```/usr/local/bin``` directory
+Put ```rrd_uradmonitor.pl``` script into ```/usr/local/bin``` directory.
 
 Make it executable by running the following command:
 
@@ -22,7 +22,7 @@ Make it executable by running the following command:
 chmod 755 /usr/local/bin/rrd_uradmonitor.pl
 ```
 
- Localize the settings defined at the beginning of the script.
+Localize the settings defined at the beginning of the script.
 
 ```perl
 # Define your domain name or leave it empty.
@@ -64,7 +64,7 @@ Schedule the script to run at one minute interval using crontab. Add the followi
 ```
 
 ## Viewing the graphs
- 
+
 Put ```radiation.cgi``` script into the ```/srv/www/htdocs/radiation``` directory.
  
 Make it executable by running the following command:
@@ -101,7 +101,7 @@ Now you should be able to access the page from your browser at:
 ```
 http://your_domain_or_ip/radiation/radiation.cgi
 ```
-   
+
 If you want you can rename the ```radiation.cgi``` file to ```index.cgi``` so that it can be accessed more simply as ```http://your_domain_or_ip/radiation/```. Also you
 need to add one more directive to ```.htaccess``` file:
 
@@ -114,7 +114,7 @@ Clicking any of the daily graphs will then display the detailed graphs for that 
 ## Demo
 
 You can see the live graphs from my uRADMonitor device readings [here](http://www.disruptivesoftware.ro/radiation/).
-   
+
 ## License
 
 Released under the MIT License. See the [bundled LICENSE](https://github.com/cristianst85/rrd-uradmonitor-perl/blob/master/LICENSE) file for details.

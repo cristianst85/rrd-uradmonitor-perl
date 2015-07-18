@@ -23,8 +23,8 @@
 # THE SOFTWARE.
 #
 # Name          : radiation.cgi
-# Version       : 0.4.0
-# Date          : 2015/07/16
+# Version       : 0.4.1
+# Date          : 2015/07/18
 #
 # Description   : A Perl script that generates a simple web page to view the 
 #                 graphs created from the data stored in the RRD database.
@@ -86,9 +86,9 @@ print <<END
 <html>
 <head>
   <title>$srv_name :: radiation monitoring :: $description</title>
-  <meta http-eqiv="Refresh" content="$REFRESH" />
-  <meta http-eqiv="Cache-Control" content="no-cache" />
-  <meta http-eqiv="Pragma" content="no-cache" />
+  <meta http-equiv="Refresh" content="$REFRESH" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Cache-Control" content="no-cache" />
   <style>
     body { 
 	font-family: Verdana, Tahoma, Arial, Helvetica;
