@@ -2,7 +2,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (C) 2015, Cristian Stoica.
+# Copyright (C) 2015-2019, Cristian Stoica.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@
 # THE SOFTWARE.
 #
 # Name          : rrd_uradmonitor.pl 
-# Version       : 0.6.1
-# Date          : 2015/07/16
+# Version       : 0.6.2
+# Date          : 2018/11/25
 #
 # Description   : A Perl script that fetches data from an uRADMonitor
 #                 device, stores it into a RRD database and creates
@@ -53,21 +53,12 @@ my $RRD_GRAPHS_DIR_PATH = "/srv/www/htdocs/radiation/images";
 # Define JSON url (e.g.: http://192.168.0.2/j)
 my $JSON_URL = '';
 
-# The information about conversion factors was taken from
-# https://github.com/radhoo/uradmonitor_kit1/blob/master/code/misc/detectors.cpp
-# 
-# Available detectors:
-#
-# Name         Factor
-# --------------------
-# SBM19       0.001500
-# SBM20       0.006315
-# SBM21       0.048000
-# SI1G        0.006000
-# SI3BG       0.631578
-# SI22G       0.001714
-# SI29BG      0.010000
-# STS5        0.006666
+# Temperature offset to calculate air temperature.
+# This value is specific for each device model.
+my $AIR_TEMPERATURE_OFFSET = -6.0;
+
+# Conversion factors for all devices can be found at
+# https://github.com/radhoo/uradmonitor_kit1/blob/master/code/geiger/detectors.cpp
 
 # Define all known detectors and their corresponding factor.
 my %DETECTOR_FACTORS = (
@@ -116,7 +107,6 @@ $usvh = ($cpm * $detector_factor);
 if (defined $pres) {
 	$device_has_pressure_sensor = 1;
 	$temp_sensor_name = 'BMP180 '; # Pad right to keep them nicely aligned.
-	
 }
 else {
 	$temp_sensor_name = 'DS18B20';
@@ -124,7 +114,9 @@ else {
 }
 
 printf "Radiation: $cpm cpm ($usvh uSv/h)\n";
-printf "Temperature: $temp C\n";
+printf "Temperature: $temp degrees C\n";
+printf "Air Temperature: %s degrees C\n", $temp + $AIR_TEMPERATURE_OFFSET;
+
 if ($device_has_pressure_sensor) {
 	printf "Pressure: $pres Pa\n";
 }
@@ -161,6 +153,7 @@ if ($ERROR = RRDs::error) {
 
 my $now = Time::Piece->new->strftime('%d/%m/%Y %H:%M:%S (%Z/%z)');
 print "Creating graphs...\n";
+
 &create_radiation_graph("radiation", "day", "-1day");
 &create_radiation_graph("radiation", "week", "-7day");
 &create_radiation_graph("radiation", "month", "-1month");
@@ -169,6 +162,7 @@ print "Creating graphs...\n";
 &create_temperature_graph("temperature", "week", "-7day");
 &create_temperature_graph("temperature", "month", "-1month");
 &create_temperature_graph("temperature", "year", "-1year");
+
 if ($device_has_pressure_sensor) {
 	&create_pressure_graph("pressure", "day", "-1day");
 	&create_pressure_graph("pressure", "week", "-7day");
@@ -216,11 +210,17 @@ sub create_temperature_graph {
         "-a", "PNG",
         "-v degrees C",
         "DEF:temp=$RRD_DATABASE_PATH:temp:AVERAGE",
-        "LINE:temp#FF0000:Sensor $temp_sensor_name",
+        "CDEF:air_temp=temp,$AIR_TEMPERATURE_OFFSET,+",
+        "LINE:temp#FF0000:Sensor $temp_sensor_name ", # Pad right with an extra space.
         "GPRINT:temp:MAX:Max\\: %2.1lf",
         "GPRINT:temp:AVERAGE:Avg\\: %2.1lf",
         "GPRINT:temp:MIN:Min\\: %2.1lf",
-        "GPRINT:temp:LAST:Current\\: %2.1lf degrees C\\n";
+        "GPRINT:temp:LAST:Current\\: %2.1lf degrees C\\n",
+        "LINE:air_temp#7F00FF:Air Temperature",
+        "GPRINT:air_temp:MAX:Max\\: %2.1lf",
+        "GPRINT:air_temp:AVERAGE:Avg\\: %2.1lf",
+        "GPRINT:air_temp:MIN:Min\\: %2.1lf",
+        "GPRINT:air_temp:LAST:Current\\: %2.1lf degrees C\\n";
 
         if ($ERROR = RRDs::error) {
                 print "$0: unable to create $_[0] graph $ERROR\n";
